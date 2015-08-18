@@ -19,8 +19,7 @@ struct Person *Person_create(char *name, int age, int height, int weight)
     who->age = age;
     who->height = height;
     who->weight = weight;
-
-    return who;
+adasdasd
 }
 
 void Person_destroy(struct Person *who)
