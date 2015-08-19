@@ -1,69 +1,56 @@
-#include <stdio.h>
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<limits.h>
 
-struct Person {
-    char *name;
-    int age;
-    int height;
-    int weight;
-};
+char* anythingToBoolean(void* voidPointer, int sizeBytes) { //function returs dynamically allocated memory !!! must free after pointer use!
 
-struct Person *Person_create(char *name, int age, int height, int weight)
-{
-    struct Person *who = malloc(sizeof(struct Person));
-    assert(who != NULL);
+    char* charPointer = (char*) voidPointer;
+    int bufferLenght = sizeBytes * CHAR_BIT + 1;
+    int lastBufferIndex = bufferLenght - 1;
+    int lastSizesIndex = sizeBytes - 1;
+    char *buffer = malloc(bufferLenght); //allocate number of bytes * number of bits in char (number of bits in 1 byte) + 1 bit for null
+    int i, j;
 
-    who->name = strdup(name);
-    who->age = age;
-    who->height = height;
-    who->weight = weight;
-adasdasd
+    if (!buffer) { // check whether we have the desired memory, otherwise exit
+        return NULL;
+    }
+
+    buffer[lastBufferIndex] = 0; // set last bit to null - C-style strings
+
+    for (j = lastSizesIndex ; j >= 0 ; j--) {
+        for (i = lastBufferIndex - 1 - (lastSizesIndex - j) * CHAR_BIT ; i >= j * CHAR_BIT ; i--) {
+            *(buffer + i) = (*(charPointer + j) & 0b00000001) + 48; // take the current p and apply bitmask with value 1
+            *(charPointer + j) >>= 1; // left roll bits
+        }
+    }
+    return buffer;
 }
 
-void Person_destroy(struct Person *who)
-{
-    assert(who != NULL);
-}
+int main () {
 
-void Person_print(struct Person *who)
-{
-    printf("Name: %s\n", who->name);
-    printf("\tAge: %d\n", who->age);
-    printf("\tHeight: %d\n", who->height);
-    printf("\tWeight: %d\n", who->weight);
-}
+    struct P {
+        int k;
+        int p;
+    } ad;
 
-int main(int argc, char *argv[])
-{
-    // make two people structures
-    struct Person *joe = Person_create(
-            "Joe Alex", 32, 64, 140);
+    ad.k = 134;
+    ad.p = 1324;
+    int de = 15126;
+    unsigned long lo = 1231231231312312;
+    float f = 34.4;
+    char * buffer = anythingToBoolean(&ad, sizeof(ad));
+    printf("struct:%s\n", buffer);
+    free(buffer);
+    buffer = anythingToBoolean(&de, sizeof(de));
+    printf("int:%s\n", buffer);
+    free(buffer);
+    buffer = anythingToBoolean(&lo, sizeof(lo));
+    printf("long:%s\n", buffer);
+    free(buffer);
+    buffer = anythingToBoolean(&f, sizeof(f));
+    printf("float:%s\n", buffer);
+    free(buffer);
 
-    struct Person *frank = Person_create(
-            "Frank Blank", 20, 72, 180);
-
-    // print them out and where they are in memory
-    printf("Joe is at memory location %p:\n", joe);
-    Person_print(joe);
-
-    printf("Frank is at memory location %p:\n", frank);
-    Person_print(frank);
-
-    // make everyone age 20 years and print them again
-    joe->age += 20;
-    joe->height -= 2;
-    joe->weight += 40;
-    Person_print(joe);
-
-    frank->age += 20;
-    frank->weight += 20;
-    Person_print(frank);
-
-    // destroy them both so we clean up
-    Person_destroy(joe);
-    Person_destroy(frank);
 
     return 0;
 }
